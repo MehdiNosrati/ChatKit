@@ -109,7 +109,7 @@ public abstract class DemoMessagesActivity extends AppCompatActivity
             public void run() {
                 ArrayList<Message> messages = MessagesFixtures.getMessages(lastLoadedDate);
                 lastLoadedDate = messages.get(messages.size() - 1).getCreatedAt();
-                messagesAdapter.addToEnd(messages, false);
+                messagesAdapter.setData(messages);
             }
         }, 1000);
     }

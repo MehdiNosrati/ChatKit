@@ -20,6 +20,7 @@ import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.support.annotation.LayoutRes;
+import android.support.v7.util.DiffUtil;
 import android.support.v7.widget.RecyclerView;
 import android.text.Spannable;
 import android.text.method.LinkMovementMethod;
@@ -184,6 +185,45 @@ public class MessagesListAdapter<MESSAGE extends IMessage>
         int oldSize = items.size();
         generateDateHeaders(messages);
         notifyItemRangeInserted(oldSize, items.size() - oldSize);
+    }
+
+    public void setData(final List<MESSAGE> messageList) {
+        if (items == null) {
+            addToEnd(messageList, false);
+        } else {
+            final DiffUtil.Callback callback = new DiffUtil.Callback() {
+                @Override
+                public int getOldListSize() {
+                    return items.size();
+                }
+
+                @Override
+                public int getNewListSize() {
+                    return messageList.size();
+                }
+
+                @Override
+                public boolean areItemsTheSame(int oldItemPosition, int newItemPosition) {
+                    if (items.get(oldItemPosition) instanceof IMessage) {
+                        return ((IMessage) items.get(oldItemPosition).item).getId()
+                                .equals(messageList.get(newItemPosition).getId());
+                    } else return false;
+                }
+
+                @Override
+                public boolean areContentsTheSame(int oldItemPosition, int newItemPosition) {
+                    return true;
+                }
+            };
+            DiffUtil.DiffResult result = DiffUtil.calculateDiff(callback);
+           items.clear();
+            for (MESSAGE m: messageList
+                 ) {
+                items.add(new Wrapper<>(m));
+            }
+            result.dispatchUpdatesTo(this);
+
+        }
     }
 
     /**
